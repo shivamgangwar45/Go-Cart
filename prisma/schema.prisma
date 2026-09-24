@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -45,11 +46,14 @@ model Product {
   rating     Rating[]
 }
 
+// Updated with full lifecycle tracking statuses
 enum OrderStatus {
   ORDER_PLACED
   PROCESSING
   SHIPPED
+  OUT_FOR_DELIVERY
   DELIVERED
+  CANCELLED
 }
 
 enum PaymentMethod {
@@ -71,12 +75,32 @@ model Order {
   updatedAt     DateTime      @updatedAt
   isCouponUsed  Boolean       @default(false)
   coupon        Json          @default("{}")
-  orderItems    OrderItem[]
+
+  // --- Tracking Fields ---
+  trackingNumber    String?       // e.g. "TRK-9832104" ya courier AWB
+  courierName       String?       // e.g. "Delhivery", "BlueDart", "Shiprocket"
+  trackingUrl       String?       // Direct external link (optional)
+  estimatedDelivery DateTime?     // Expected delivery date
 
   // Relations
-  user    User    @relation("BuyerRelation", fields: [userId], references: [id])
-  store   Store   @relation(fields: [storeId], references: [id])
-  address Address @relation(fields: [addressId], references: [id])
+  orderItems OrderItem[]
+  timeline   OrderTimeline[]       // Complete tracking history log
+  user       User          @relation("BuyerRelation", fields: [userId], references: [id])
+  store      Store         @relation(fields: [storeId], references: [id])
+  address    Address       @relation(fields: [addressId], references: [id])
+}
+
+// Step-by-step history log for tracking stepper UI
+model OrderTimeline {
+  id          String      @id @default(cuid())
+  orderId     String
+  status      OrderStatus
+  title       String      // e.g., "Package Shipped", "Reached Sorting Center"
+  description String?     // e.g., "Departed from New Delhi hub"
+  location    String?     // e.g., "Bareilly Hub, UP"
+  createdAt   DateTime    @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 // Required for creating an OrderItem: orderId, productId, quantity, price
@@ -142,7 +166,7 @@ model Coupon {
   createdAt   DateTime @default(now())
 }
 
-// Required for creating a Store: userId, name, username, email, contact, logo, description, address (optional: , status, isActive)
+// Required for creating a Store: userId, name, username, email, contact, logo, description, address
 model Store {
   id          String   @id @default(cuid())
   userId      String   @unique
