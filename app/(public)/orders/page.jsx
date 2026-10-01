@@ -1,14 +1,16 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import OrderTracker from '@/components/OrderTracker';
+import ReturnModal from '@/components/ReturnModal';
 import { generateInvoicePDF } from '@/lib/generateInvoice';
-import { Download, PackageCheck, ShoppingBag } from 'lucide-react';
+import { Download, PackageCheck, ShoppingBag, RotateCcw, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedReturnOrder, setSelectedReturnOrder] = useState(null);
   const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '₹';
 
   useEffect(() => {
@@ -19,7 +21,7 @@ export default function OrdersPage() {
           {
             id: 'ord_91823764812',
             createdAt: new Date().toISOString(),
-            status: 'Processing',
+            status: 'Delivered', // Tested with Delivered to enable Return action
             isPaid: true,
             totalAmount: 800,
             address: {
@@ -55,6 +57,14 @@ export default function OrdersPage() {
     fetchOrders();
   }, []);
 
+  const handleReturnSuccess = (orderId) => {
+    setOrders((prev) =>
+      prev.map((ord) =>
+        ord.id === orderId ? { ...ord, status: 'Return Requested' } : ord
+      )
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#0b0f17] text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -65,7 +75,7 @@ export default function OrdersPage() {
             <PackageCheck size={28} className="text-emerald-400" />
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-white">Your Orders</h1>
-              <p className="text-xs text-slate-400">Track shipments & download invoices</p>
+              <p className="text-xs text-slate-400">Track shipments, request returns & download invoices</p>
             </div>
           </div>
           <Link
@@ -105,7 +115,8 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
+                    {/* Payment Status Badge */}
                     <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
                       order.isPaid
                         ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
@@ -113,6 +124,22 @@ export default function OrdersPage() {
                     }`}>
                       {order.isPaid ? 'PAID' : 'COD / UNPAID'}
                     </span>
+
+                    {/* Return Status / Trigger */}
+                    {order.status === 'Delivered' && (
+                      <button
+                        onClick={() => setSelectedReturnOrder(order)}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-3 py-1.5 rounded-xl transition active:scale-95"
+                      >
+                        <RotateCcw size={13} /> Return
+                      </button>
+                    )}
+
+                    {order.status === 'Return Requested' && (
+                      <span className="flex items-center gap-1 text-[11px] text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
+                        <Clock size={13} /> Return in Review
+                      </span>
+                    )}
 
                     {/* Download Invoice Button */}
                     <button
@@ -165,6 +192,14 @@ export default function OrdersPage() {
             ))}
           </div>
         )}
+
+        {/* Return Modal Instance */}
+        <ReturnModal
+          isOpen={!!selectedReturnOrder}
+          onClose={() => setSelectedReturnOrder(null)}
+          order={selectedReturnOrder}
+          onReturnSuccess={handleReturnSuccess}
+        />
 
       </div>
     </div>

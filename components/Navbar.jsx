@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, ShoppingCart, Heart, User, LogOut, PackageCheck } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, LogOut, PackageCheck, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -17,12 +17,10 @@ const Navbar = () => {
     const cartCount = useSelector((state) => state?.cart?.total ?? 0);
     const wishlistCount = useSelector((state) => state?.wishlist?.items?.length ?? 0);
 
-    // SSR hydration mismatch fix: mount hone ke baad hi client-specific badge render karein
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // Page load ya route change hone par localStorage se user read karein
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
@@ -59,7 +57,6 @@ const Navbar = () => {
                     <Link href="/" className="relative text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center shrink-0">
                         <span className="text-emerald-400">go</span>cart
                         <span className="text-emerald-400 text-4xl leading-none">.</span>
-
                         <span className="ml-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 shadow-sm shadow-emerald-500/10">
                             plus
                         </span>
@@ -79,6 +76,16 @@ const Navbar = () => {
                         >
                             Shop
                         </Link>
+
+                        {/* Dedicated Returns & Refund Center Link */}
+                        <Link 
+                            href="/returns" 
+                            className={`flex items-center gap-1.5 transition-colors hover:text-emerald-400 ${pathname.startsWith('/returns') ? 'text-emerald-400 font-semibold' : ''}`}
+                        >
+                            <RotateCcw size={14} className="text-emerald-400" />
+                            <span>Returns</span>
+                        </Link>
+
                         <Link 
                             href="/about" 
                             className={`transition-colors hover:text-emerald-400 ${pathname === '/about' ? 'text-emerald-400 font-semibold' : ''}`}
@@ -175,7 +182,14 @@ const Navbar = () => {
 
                     {/* Mobile Controls */}
                     <div className="md:hidden flex items-center gap-3">
-                        {/* Mobile Wishlist */}
+                        <Link 
+                            href="/returns" 
+                            className={`p-1.5 transition-colors ${pathname.startsWith('/returns') ? 'text-emerald-400' : 'text-slate-300 hover:text-emerald-400'}`} 
+                            title="Returns Center"
+                        >
+                            <RotateCcw size={19} />
+                        </Link>
+
                         <Link href="/wishlist" className="relative p-1.5 text-slate-300">
                             <Heart size={20} />
                             {mounted && wishlistCount > 0 && (
@@ -185,7 +199,6 @@ const Navbar = () => {
                             )}
                         </Link>
 
-                        {/* Mobile Cart */}
                         <Link href="/cart" className="relative p-1.5 text-slate-300">
                             <ShoppingCart size={20} />
                             {mounted && cartCount > 0 && (
@@ -195,7 +208,6 @@ const Navbar = () => {
                             )}
                         </Link>
 
-                        {/* Mobile Auth */}
                         {mounted && user ? (
                             <div className="flex items-center gap-1.5">
                                 <Link href="/orders" className="p-1.5 text-slate-300 hover:text-emerald-400">

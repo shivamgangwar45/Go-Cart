@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { StarIcon, Heart } from 'lucide-react'
@@ -14,11 +14,20 @@ const ProductCard = ({ product }) => {
     const dispatch = useDispatch()
     const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
 
+    // SSR hydration mismatch fix: mount hone tak initial fallback match rakhein
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
     // Type-safe matching taaki string vs number ID issue na aaye aur memory warning na ho
-    const isWishlisted = useSelector((state) => {
-        const items = state?.wishlist?.items ?? EMPTY_ITEMS
-        return items.some((item) => String(item?.id) === String(product?.id))
-    })
+    const wishlistItems = useSelector((state) => state?.wishlist?.items ?? EMPTY_ITEMS)
+
+    // Client mount hone ke baad hi true check activate hoga taaki server HTML se exact match ho
+    const isWishlisted = mounted
+        ? wishlistItems.some((item) => String(item?.id) === String(product?.id))
+        : false
 
     // Safe average rating calculation
     const rating = useMemo(() => {
@@ -81,6 +90,7 @@ const ProductCard = ({ product }) => {
                     <span />
                 )}
 
+                {/* Hydration-safe Wishlist Button */}
                 <button
                     type="button"
                     onClick={handleWishlistClick}
