@@ -6,6 +6,9 @@ import { useSelector } from "react-redux";
 import Link from "next/link";
 import ProductDescription from "@/components/ProductDescription";
 import ProductDetails from "@/components/ProductDetails";
+import FrequentlyBoughtTogether from "@/components/FrequentlyBoughtTogether";
+import PincodeChecker from "@/components/PincodeChecker";
+import SuggestedForYou from "@/components/SuggestedForYou";
 import ReviewBreakdown from "@/components/ReviewBreakdown";
 import ReviewModal from "@/components/ReviewModal";
 import ReviewCard from "@/components/ReviewCard";
@@ -78,8 +81,20 @@ export default function Product() {
                     </span>
                 </nav>
 
-                {/* Main Product Showcase */}
+                {/* Main Product Showcase (Images, Stock, Price & Cart Actions) */}
                 {product && <ProductDetails product={product} />}
+
+                {/* Smart Conversion Boosters (Bundle Cross-Sell + Pincode Delivery Estimator) */}
+                {product && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2">
+                            <FrequentlyBoughtTogether currentProduct={product} />
+                        </div>
+                        <div className="lg:col-span-1">
+                            <PincodeChecker />
+                        </div>
+                    </div>
+                )}
 
                 {/* Tabbed Specifications & Long Description */}
                 {product && <ProductDescription product={product} />}
@@ -109,6 +124,9 @@ export default function Product() {
                         )}
                     </section>
                 )}
+
+                {/* AI Curated Personalized Recommendations */}
+                {product && <SuggestedForYou excludeId={product.id} />}
 
                 {/* Cross-Sell: Recently Viewed Products */}
                 <RecentlyViewed />

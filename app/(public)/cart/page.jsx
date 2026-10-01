@@ -2,6 +2,7 @@
 import Counter from "@/components/Counter";
 import OrderSummary from "@/components/OrderSummary";
 import PageTitle from "@/components/PageTitle";
+import SuggestedForYou from "@/components/SuggestedForYou";
 import { deleteItemFromCart } from "@/lib/features/cart/cartSlice";
 import { Trash2Icon, ShoppingBag, ArrowLeft } from "lucide-react";
 import Image from "next/image";
@@ -53,7 +54,7 @@ export default function Cart() {
 
     return cartArray.length > 0 ? (
         <div className="min-h-screen bg-[#0b0f17] text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto space-y-8">
+            <div className="max-w-7xl mx-auto space-y-10">
                 
                 {/* Page Title & Back to Shop */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
@@ -66,10 +67,11 @@ export default function Cart() {
                     </Link>
                 </div>
 
+                {/* Main Cart Content: Items List + Order Summary */}
                 <div className="flex items-start justify-between gap-8 max-lg:flex-col">
 
                     {/* Cart Items Table */}
-                    <div className="w-full max-w-4xl bg-[#111827] border border-slate-800/80 rounded-2xl p-6 shadow-xl overflow-x-auto">
+                    <div className="w-full lg:flex-1 bg-[#111827] border border-slate-800/80 rounded-2xl p-6 shadow-xl overflow-x-auto">
                         <table className="w-full text-slate-300 table-auto">
                             <thead>
                                 <tr className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400 pb-3">
@@ -128,8 +130,17 @@ export default function Cart() {
                     </div>
 
                     {/* Order Summary with Auth Protection */}
-                    <OrderSummary totalPrice={totalPrice} items={cartArray} />
+                    <div className="w-full lg:w-96 shrink-0">
+                        <OrderSummary totalPrice={totalPrice} items={cartArray} />
+                    </div>
+
                 </div>
+
+                {/* Full-Width Cross-Sell: Suggested For You */}
+                <div className="pt-6">
+                    <SuggestedForYou title="You May Also Like" />
+                </div>
+
             </div>
         </div>
     ) : (
