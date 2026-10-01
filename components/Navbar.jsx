@@ -10,10 +10,17 @@ const Navbar = () => {
     const router = useRouter();
     const pathname = usePathname();
 
+    const [mounted, setMounted] = useState(false);
     const [search, setSearch] = useState('');
     const [user, setUser] = useState(null);
+
     const cartCount = useSelector((state) => state?.cart?.total ?? 0);
     const wishlistCount = useSelector((state) => state?.wishlist?.items?.length ?? 0);
+
+    // SSR hydration mismatch fix: mount hone ke baad hi client-specific badge render karein
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Page load ya route change hone par localStorage se user read karein
     useEffect(() => {
@@ -108,7 +115,7 @@ const Navbar = () => {
                         >
                             <Heart size={19} className="text-slate-300 hover:text-rose-400 transition-colors" />
                             <span className="font-medium hidden lg:inline">Wishlist</span>
-                            {wishlistCount > 0 && (
+                            {mounted && wishlistCount > 0 && (
                                 <span className="absolute -top-1.5 -right-1 text-[9px] font-bold text-white bg-rose-500 size-4 rounded-full flex items-center justify-center shadow-lg shadow-rose-500/40">
                                     {wishlistCount}
                                 </span>
@@ -123,7 +130,7 @@ const Navbar = () => {
                         >
                             <ShoppingCart size={19} className="text-slate-300 hover:text-emerald-400 transition-colors" />
                             <span className="font-medium hidden lg:inline">Cart</span>
-                            {cartCount > 0 && (
+                            {mounted && cartCount > 0 && (
                                 <span className="absolute -top-1.5 -right-1 text-[9px] font-bold text-black bg-emerald-400 size-4 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40">
                                     {cartCount}
                                 </span>
@@ -131,7 +138,7 @@ const Navbar = () => {
                         </Link>
 
                         {/* Desktop Auth Section */}
-                        {user ? (
+                        {mounted && user ? (
                             <div className="flex items-center gap-2 pl-3 border-l border-slate-800">
                                 <Link
                                     href="/orders"
@@ -156,14 +163,14 @@ const Navbar = () => {
                                     <LogOut size={17} />
                                 </button>
                             </div>
-                        ) : (
+                        ) : mounted ? (
                             <Link
                                 href="/login"
                                 className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs rounded-full transition-all duration-200 shadow-md shadow-emerald-500/20 active:scale-95"
                             >
                                 Login
                             </Link>
-                        )}
+                        ) : null}
                     </div>
 
                     {/* Mobile Controls */}
@@ -171,7 +178,7 @@ const Navbar = () => {
                         {/* Mobile Wishlist */}
                         <Link href="/wishlist" className="relative p-1.5 text-slate-300">
                             <Heart size={20} />
-                            {wishlistCount > 0 && (
+                            {mounted && wishlistCount > 0 && (
                                 <span className="absolute -top-1 -right-1 text-[8px] font-bold text-white bg-rose-500 size-4 rounded-full flex items-center justify-center shadow-md">
                                     {wishlistCount}
                                 </span>
@@ -181,7 +188,7 @@ const Navbar = () => {
                         {/* Mobile Cart */}
                         <Link href="/cart" className="relative p-1.5 text-slate-300">
                             <ShoppingCart size={20} />
-                            {cartCount > 0 && (
+                            {mounted && cartCount > 0 && (
                                 <span className="absolute -top-1 -right-1 text-[8px] font-bold text-black bg-emerald-400 size-4 rounded-full flex items-center justify-center shadow-md">
                                     {cartCount}
                                 </span>
@@ -189,7 +196,7 @@ const Navbar = () => {
                         </Link>
 
                         {/* Mobile Auth */}
-                        {user ? (
+                        {mounted && user ? (
                             <div className="flex items-center gap-1.5">
                                 <Link href="/orders" className="p-1.5 text-slate-300 hover:text-emerald-400">
                                     <PackageCheck size={19} />
@@ -201,14 +208,14 @@ const Navbar = () => {
                                     Logout
                                 </button>
                             </div>
-                        ) : (
+                        ) : mounted ? (
                             <Link
                                 href="/login"
                                 className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition rounded-full shadow-sm"
                             >
                                 Login
                             </Link>
-                        )}
+                        ) : null}
                     </div>
 
                 </div>

@@ -1,50 +1,68 @@
+'use client'
 import React from 'react';
+import { CheckCircle2, Clock, Truck, Package, Home } from 'lucide-react';
 
-const STEPS = [
-  { id: 'ORDER_PLACED', label: 'Order Placed' },
-  { id: 'PROCESSING', label: 'Processing' },
-  { id: 'SHIPPED', label: 'Shipped' },
-  { id: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
-  { id: 'DELIVERED', label: 'Delivered' },
+const steps = [
+  { label: 'Order Placed', icon: Clock, key: 'Placed' },
+  { label: 'Processing', icon: Package, key: 'Processing' },
+  { label: 'Shipped', icon: Truck, key: 'Shipped' },
+  { label: 'Out for Delivery', icon: Truck, key: 'OutForDelivery' },
+  { label: 'Delivered', icon: Home, key: 'Delivered' },
 ];
 
-export default function OrderTracker({ currentStatus }) {
-  // Current status ka index pata karna
-  const activeIndex = STEPS.findIndex((step) => step.id === currentStatus);
+export default function OrderTracker({ currentStatus = 'Placed' }) {
+  const getStepIndex = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'processing': return 1;
+      case 'shipped': return 2;
+      case 'out for delivery':
+      case 'outfordelivery': return 3;
+      case 'delivered': return 4;
+      default: return 0;
+    }
+  };
+
+  const activeIndex = getStepIndex(currentStatus);
 
   return (
-    <div className="w-full py-4">
-      <div className="flex items-center justify-between relative">
-        {STEPS.map((step, index) => {
-          const isCompleted = index <= activeIndex;
-          const isCurrent = index === activeIndex;
+    <div className="w-full py-6">
+      <div className="relative flex items-center justify-between">
+        
+        {/* Background Connecting Line */}
+        <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1 bg-slate-800 -z-0" />
+        
+        {/* Active Progress Green Line */}
+        <div
+          className="absolute left-6 top-1/2 -translate-y-1/2 h-1 bg-emerald-500 transition-all duration-500 -z-0"
+          style={{ width: `${(activeIndex / (steps.length - 1)) * 90}%` }}
+        />
+
+        {steps.map((step, idx) => {
+          const isCompleted = idx < activeIndex;
+          const isCurrent = idx === activeIndex;
+          const StepIcon = step.icon;
 
           return (
-            <div key={step.id} className="flex-1 relative flex flex-col items-center">
-              {/* Connecting Bar */}
-              {index !== 0 && (
-                <div
-                  className={`absolute top-3 right-1/2 w-full h-1 -z-0 transition-all ${
-                    index <= activeIndex ? 'bg-emerald-500' : 'bg-slate-200'
-                  }`}
-                />
-              )}
-
-              {/* Circle / Icon */}
+            <div key={idx} className="flex flex-col items-center relative z-10">
               <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold z-10 transition-all ${
+                className={`size-10 sm:size-11 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
                   isCompleted
-                    ? 'bg-emerald-600 text-white shadow-sm ring-4 ring-emerald-100'
-                    : 'bg-slate-200 text-slate-500'
+                    ? 'bg-emerald-500 border-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
+                    : isCurrent
+                    ? 'bg-[#0b0f17] border-emerald-400 text-emerald-400 ring-4 ring-emerald-500/20 animate-pulse'
+                    : 'bg-[#111827] border-slate-800 text-slate-500'
                 }`}
               >
-                {isCompleted ? '✓' : index + 1}
+                {isCompleted ? <CheckCircle2 size={18} strokeWidth={2.5} /> : <StepIcon size={18} />}
               </div>
 
-              {/* Status Label */}
               <span
-                className={`mt-2 text-[11px] font-medium text-center ${
-                  isCurrent ? 'text-emerald-700 font-bold' : isCompleted ? 'text-slate-700' : 'text-slate-400'
+                className={`text-[10px] sm:text-xs font-semibold mt-2.5 text-center max-w-[70px] sm:max-w-none transition-colors ${
+                  isCurrent
+                    ? 'text-emerald-400 font-bold'
+                    : isCompleted
+                    ? 'text-slate-200'
+                    : 'text-slate-500'
                 }`}
               >
                 {step.label}
