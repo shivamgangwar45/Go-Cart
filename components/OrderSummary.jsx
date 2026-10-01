@@ -91,11 +91,11 @@ const OrderSummary = ({ totalPrice, items }) => {
                         router.push('/orders');
                     },
                     prefill: {
-                        name: selectedAddress?.name || "Shivam Gangwar",
+                        name: selectedAddress?.name || "Customer",
                         email: "test@example.com",
                         contact: selectedAddress?.phone || "9999999999",
                     },
-                    theme: { color: "#334155" }
+                    theme: { color: "#10b981" }
                 };
 
                 const rzp = new window.Razorpay(options);
@@ -110,114 +110,162 @@ const OrderSummary = ({ totalPrice, items }) => {
         <>
             <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
 
-            <div className='w-full max-w-lg lg:max-w-[340px] bg-slate-50/30 border border-slate-200 text-slate-500 text-sm rounded-xl p-7'>
-                <h2 className='text-xl font-medium text-slate-600'>Payment Summary</h2>
-                <p className='text-slate-400 text-xs my-4'>Payment Method</p>
+            <div className='w-full max-w-lg lg:max-w-[360px] bg-[#111827] border border-slate-700/80 text-slate-200 text-sm rounded-2xl p-6 shadow-2xl space-y-4'>
+                <h2 className='text-xl font-bold text-white tracking-tight border-b border-slate-700 pb-3'>Payment Summary</h2>
+                
+                {/* Payment Methods */}
+                <div>
+                    <p className='text-slate-400 text-xs uppercase tracking-wider font-bold mb-3'>Payment Method</p>
 
-                {/* COD Option */}
-                <div className='flex gap-2 items-center'>
-                    <input 
-                        type="radio" 
-                        id="COD" 
-                        name="paymentMethod" 
-                        onChange={() => setPaymentMethod('COD')} 
-                        checked={paymentMethod === 'COD'} 
-                        className='accent-gray-500 cursor-pointer' 
-                    />
-                    <label htmlFor="COD" className='cursor-pointer'>COD</label>
+                    <div className='space-y-2'>
+                        {/* COD Option */}
+                        <label className={`flex gap-3 items-center p-2.5 rounded-xl border cursor-pointer transition-all ${
+                            paymentMethod === 'COD'
+                                ? 'bg-emerald-500/10 border-emerald-500/60 text-white'
+                                : 'bg-slate-900/50 border-slate-700/70 text-slate-300 hover:border-slate-600'
+                        }`}>
+                            <input 
+                                type="radio" 
+                                id="COD" 
+                                name="paymentMethod" 
+                                onChange={() => setPaymentMethod('COD')} 
+                                checked={paymentMethod === 'COD'} 
+                                className='accent-emerald-500 w-4 h-4 cursor-pointer' 
+                            />
+                            <span className='font-medium text-sm'>COD (Cash on Delivery)</span>
+                        </label>
+
+                        {/* Stripe Option */}
+                        <label className={`flex gap-3 items-center p-2.5 rounded-xl border cursor-pointer transition-all ${
+                            paymentMethod === 'STRIPE'
+                                ? 'bg-emerald-500/10 border-emerald-500/60 text-white'
+                                : 'bg-slate-900/50 border-slate-700/70 text-slate-300 hover:border-slate-600'
+                        }`}>
+                            <input 
+                                type="radio" 
+                                id="STRIPE" 
+                                name="paymentMethod" 
+                                onChange={() => setPaymentMethod('STRIPE')} 
+                                checked={paymentMethod === 'STRIPE'} 
+                                className='accent-emerald-500 w-4 h-4 cursor-pointer' 
+                            />
+                            <span className='font-medium text-sm'>Stripe Payment</span>
+                        </label>
+
+                        {/* Razorpay Option */}
+                        <label className={`flex gap-3 items-center p-2.5 rounded-xl border cursor-pointer transition-all ${
+                            paymentMethod === 'RAZORPAY'
+                                ? 'bg-emerald-500/10 border-emerald-500/60 text-white'
+                                : 'bg-slate-900/50 border-slate-700/70 text-slate-300 hover:border-slate-600'
+                        }`}>
+                            <input 
+                                type="radio" 
+                                id="RAZORPAY" 
+                                name="paymentMethod" 
+                                onChange={() => setPaymentMethod('RAZORPAY')} 
+                                checked={paymentMethod === 'RAZORPAY'} 
+                                className='accent-emerald-500 w-4 h-4 cursor-pointer' 
+                            />
+                            <span className='font-medium text-sm'>Razorpay (Cards, UPI, Wallets)</span>
+                        </label>
+                    </div>
                 </div>
 
-                {/* Stripe Option */}
-                <div className='flex gap-2 items-center mt-2'>
-                    <input 
-                        type="radio" 
-                        id="STRIPE" 
-                        name="paymentMethod" 
-                        onChange={() => setPaymentMethod('STRIPE')} 
-                        checked={paymentMethod === 'STRIPE'} 
-                        className='accent-gray-500 cursor-pointer' 
-                    />
-                    <label htmlFor="STRIPE" className='cursor-pointer'>Stripe Payment</label>
-                </div>
-
-                {/* Razorpay Option */}
-                <div className='flex gap-2 items-center mt-2'>
-                    <input 
-                        type="radio" 
-                        id="RAZORPAY" 
-                        name="paymentMethod" 
-                        onChange={() => setPaymentMethod('RAZORPAY')} 
-                        checked={paymentMethod === 'RAZORPAY'} 
-                        className='accent-gray-500 cursor-pointer' 
-                    />
-                    <label htmlFor="RAZORPAY" className='cursor-pointer'>Razorpay (Cards, Netbanking, Wallets)</label>
-                </div>
-
-                <div className='my-4 py-4 border-y border-slate-200 text-slate-400'>
-                    <p>Address</p>
+                {/* Address Section */}
+                <div className='pt-3 border-t border-slate-700/80'>
+                    <p className='text-slate-400 text-xs uppercase tracking-wider font-bold mb-2'>Delivery Address</p>
                     {
                         selectedAddress ? (
-                            <div className='flex gap-2 items-center mt-2 text-slate-700'>
-                                <p>{selectedAddress.name}, {selectedAddress.city}, {selectedAddress.state}, {selectedAddress.zip}</p>
-                                <SquarePenIcon onClick={() => setSelectedAddress(null)} className='cursor-pointer shrink-0' size={18} />
+                            <div className='flex justify-between items-center bg-slate-900/70 border border-slate-700 p-3 rounded-xl text-slate-100 text-xs'>
+                                <p className='leading-relaxed'>{selectedAddress.name}, {selectedAddress.city}, {selectedAddress.state}, {selectedAddress.zip}</p>
+                                <button type="button" onClick={() => setSelectedAddress(null)} className='text-emerald-400 hover:text-emerald-300 ml-2 p-1'>
+                                    <SquarePenIcon size={16} />
+                                </button>
                             </div>
                         ) : (
-                            <div>
+                            <div className='space-y-2'>
                                 {
                                     addressList.length > 0 && (
-                                        <select className='border border-slate-400 p-2 w-full my-3 outline-none rounded' onChange={(e) => setSelectedAddress(addressList[e.target.value])} >
-                                            <option value="">Select Address</option>
+                                        <select 
+                                            className='bg-slate-900 border border-slate-600 text-slate-100 p-2.5 w-full text-xs outline-none rounded-xl focus:border-emerald-500' 
+                                            onChange={(e) => setSelectedAddress(e.target.value !== "" ? addressList[e.target.value] : null)}
+                                        >
+                                            <option value="" className="text-slate-400">Select Address</option>
                                             {
                                                 addressList.map((address, index) => (
-                                                    <option key={index} value={index}>{address.name}, {address.city}, {address.state}, {address.zip}</option>
+                                                    <option key={index} value={index} className="text-white bg-slate-900">
+                                                        {address.name} - {address.city}, {address.state} ({address.zip})
+                                                    </option>
                                                 ))
                                             }
                                         </select>
                                     )
                                 }
-                                <button className='flex items-center gap-1 text-slate-600 mt-1' onClick={() => setShowAddressModal(true)} >Add Address <PlusIcon size={18} /></button>
+                                <button 
+                                    type="button"
+                                    className='flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-semibold pt-1' 
+                                    onClick={() => setShowAddressModal(true)}
+                                >
+                                    <PlusIcon size={15} /> Add New Address
+                                </button>
                             </div>
                         )
                     }
                 </div>
 
-                <div className='pb-4 border-b border-slate-200'>
-                    <div className='flex justify-between'>
-                        <div className='flex flex-col gap-1 text-slate-400'>
-                            <p>Subtotal:</p>
-                            <p>Shipping:</p>
-                            {coupon && <p>Coupon:</p>}
-                        </div>
-                        <div className='flex flex-col gap-1 font-medium text-right'>
-                            <p>{currency}{totalPrice.toLocaleString()}</p>
-                            <p>Free</p>
-                            {coupon && <p>{`-${currency}${(coupon.discount / 100 * totalPrice).toFixed(2)}`}</p>}
-                        </div>
+                {/* Subtotal & Coupon */}
+                <div className='pt-3 pb-2 border-t border-slate-700/80 space-y-2'>
+                    <div className='flex justify-between text-xs text-slate-300'>
+                        <p>Subtotal:</p>
+                        <p className='font-semibold text-white'>{currency}{totalPrice.toLocaleString()}</p>
                     </div>
-                    {
-                        !coupon ? (
-                            <form onSubmit={e => toast.promise(handleCouponCode(e), { loading: 'Checking Coupon...' })} className='flex justify-center gap-3 mt-3'>
-                                <input onChange={(e) => setCouponCodeInput(e.target.value)} value={couponCodeInput} type="text" placeholder='Coupon Code' className='border border-slate-400 p-1.5 rounded w-full outline-none' />
-                                <button className='bg-slate-600 text-white px-3 rounded hover:bg-slate-800 active:scale-95 transition-all'>Apply</button>
-                            </form>
-                        ) : (
-                            <div className='w-full flex items-center justify-center gap-2 text-xs mt-2'>
-                                <p>Code: <span className='font-semibold ml-1'>{coupon.code.toUpperCase()}</span></p>
-                                <p>{coupon.description}</p>
-                                <XIcon size={18} onClick={() => setCoupon('')} className='hover:text-red-700 transition cursor-pointer' />
-                            </div>
-                        )
-                    }
+                    <div className='flex justify-between text-xs text-slate-300'>
+                        <p>Shipping:</p>
+                        <p className='font-semibold text-emerald-400'>Free</p>
+                    </div>
+                    {coupon && (
+                        <div className='flex justify-between text-xs text-emerald-400 font-medium'>
+                            <p>Coupon Discount:</p>
+                            <p>-{currency}{(coupon.discount / 100 * totalPrice).toFixed(2)}</p>
+                        </div>
+                    )}
+
+                    {/* Coupon Input */}
+                    <div className='pt-2'>
+                        {
+                            !coupon ? (
+                                <form onSubmit={e => toast.promise(handleCouponCode(e), { loading: 'Checking Coupon...' })} className='flex gap-2'>
+                                    <input 
+                                        onChange={(e) => setCouponCodeInput(e.target.value)} 
+                                        value={couponCodeInput} 
+                                        type="text" 
+                                        placeholder='Coupon Code' 
+                                        className='bg-slate-900 border border-slate-600 px-3 py-2 rounded-xl w-full text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-500' 
+                                    />
+                                    <button className='bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-4 rounded-xl border border-slate-600 transition active:scale-95'>
+                                        Apply
+                                    </button>
+                                </form>
+                            ) : (
+                                <div className='w-full flex items-center justify-between bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3 py-2 rounded-xl text-xs'>
+                                    <p>Code: <strong className='tracking-wider'>{coupon.code.toUpperCase()}</strong> ({coupon.description})</p>
+                                    <XIcon size={16} onClick={() => setCoupon('')} className='hover:text-rose-400 transition cursor-pointer' />
+                                </div>
+                            )
+                        }
+                    </div>
                 </div>
 
-                <div className='flex justify-between py-4'>
-                    <p>Total:</p>
-                    <p className='font-medium text-right'>{currency}{finalAmount.toFixed(2)}</p>
+                {/* Total */}
+                <div className='flex justify-between items-center py-2 border-t border-slate-700/80'>
+                    <p className='text-sm font-semibold text-slate-300'>Total:</p>
+                    <p className='text-2xl font-black text-white'>{currency}{finalAmount.toFixed(2)}</p>
                 </div>
 
+                {/* Place Order CTA Button */}
                 <button 
                     onClick={e => toast.promise(handlePlaceOrder(e), { loading: 'Processing Order...' })} 
-                    className='w-full bg-slate-700 text-white py-2.5 rounded hover:bg-slate-900 active:scale-95 transition-all cursor-pointer'
+                    className='w-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer text-sm'
                 >
                     Place Order
                 </button>
